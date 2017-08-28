@@ -21,12 +21,12 @@
   // minified (especially when both are regularly referenced in your plugin).
 
   // Create the defaults once
-  var pluginName = 'kmapsRelationstree',
+  var pluginName = 'kmapsRelationsTree',
     defaults = {
       termIndex: "http://localhost/solr/kmterms_dev",
       assetIndex: "http://localhost/solr/kmassets_dev",
       tree: "places",
-      featuresPath: "/features/",
+      featuresPath: "/features/%%ID%%",
       domain: "places",
       featureId: 1,
       perspective: "pol.admin.hier",
@@ -172,7 +172,7 @@
               title: "<strong>" + doc[ancestorsNameKey][index] + "</strong>",
               key: val,
               expanded: true,
-              href: plugin.options.featuresPath+val,
+              href: plugin.options.featuresPath.replace("%%ID%%",val),
               lazy: true,
               //[].concat to handle the instance when the children are sent as an argument
               children: acc === undefined ? null : [].concat(acc)
@@ -214,9 +214,7 @@
         "ancestor*",
         "caption_eng",
         "related_"+plugin.options.domain+"_feature_type_s",
-        "related_"+plugin.options.domain+"_relation_label_s",
-        "related_"+plugin.options.domain+"_relation_asymmetric_label_s",
-        "related_"+plugin.options.domain+"_relation_asymmetric_label_s",
+        "related_"+plugin.options.domain+"_relation_label_s"
       ].join(",");
       if(plugin.options.domain == "places"){
         fieldList += ",related_subjects_t";
@@ -265,11 +263,11 @@
             const child = {
               title: "<strong>" + currentNode["related_"+plugin.options.domain+"_header_s"] + "</strong> (" +
               feature_type +
-              currentNode["related_"+plugin.options.domain+"_relation_asymmetric_label_s"]+")",
+              currentNode["related_"+plugin.options.domain+"_relation_label_s"]+")",
               key: plugin.options.domain + "-" + key,
               expanded: false,
               lazy: true,
-              href: plugin.options.featuresPath+key,
+              href: plugin.options.featuresPath.replace("%%ID%%",key),
             };
             if(currentNode["child_count"] !== undefined) {
               if(currentNode["child_count"]["numFound"] === 0) {

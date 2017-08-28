@@ -25,10 +25,10 @@ You'll notice that there is now CSS provided, it should be part of your KMAPS ap
 
 ```
 $(document).ready(function(){
-  $("#relation_tree_container").kmapsFancytree({
+  $("#relation_tree_container").kmapsRelationsTree({
     domain: "YOUR_APP_DOMAIN", //[places, subjects, sources, etc.]
     featureId: "FID", //Feature fid of the active node
-    featuresPath: "/features/", //This would be the path to the features + FID to navigate when node is clicked
+    featuresPath: "HTTPS://PATH/TO/NODE/%%ID%%", //This base URL is a pattern with the %%ID%% to be replaced with each node's ID
     perspective: "PERSPECTIVE.CODE",
     tree: "TREE_ID_IN_SOLR", //[places,subjects,sources, etc.]
     termIndex: "HTTPS://SERVER/PATH/TO/TERM_INDEX",
