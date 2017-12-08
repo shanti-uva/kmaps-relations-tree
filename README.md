@@ -35,10 +35,28 @@ $(document).ready(function(){
     seedTree: {
       descendants: true, //Show descendants
       directAncestors: false, //Show only direct A
-    }
+    },
+    displayPopup: false,
+    mandalaURL: "https://mandala.shanti.virginia.edu/%%APP%%/%%ID%%/%%REL%%/nojs"
   });
 });
 ```
+
+### Modifications for pop-up
+
+all the pop-up decoration is done in the function: `decorateElementWithPopover` something important to note is that currently the links to the associated features is hard coded but it can easily be modified for this search for the `shown.bs.popover` action in the `decorateElementWithPopover` function, there you'll find the list of features that the popover show and just replace the link with what ever you need.
+
+For example:
+```
+            popOverFooter.append("<div style='display: none' class='popover-footer-button'><a href='"+plugin.options.featuresPath.replace("%%ID%%",key.replace(plugin.options.domain+'-',""))+"#show_relationship=subjects' class='icon shanticon-subjects' target='_blank'>Related subjets (<span class='badge-count' >?</span>)</a></div>");
+```
+
+the link href is using the featuresPath URL but it can easily be changed to some other app link for example using the `mandlaURL`
+
+```
+            popOverFooter.append("<div style='display: none' class='popover-footer-button'><a href='"+plugin.options.mandalaURL.replace("%%ID%%",key.replace(plugin.options.domain+'-',"")).replace("%%APP%%",plugin.options.domain).replace("%%REL%%","subjects")+"' class='icon shanticon-subjects' target='_blank'>Related subjets (<span class='badge-count' >?</span>)</a></div>");
+```
+
 
 ## Authors
 
