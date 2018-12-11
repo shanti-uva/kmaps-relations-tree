@@ -446,6 +446,92 @@
     });
     return dfd.promise();
   }
+  Plugin.getFullAncestorTree = function getFullAncestorTree(options){
+    const plugin = this;
+    var loadDescendants = options["descendants"] ? !! options["descendants"] : false;
+    var loadOnlyDirectAncestors = options["directAncestors"] ? !! options["directAncestors"] : true;
+    const dfd = $.Deferred();
+    const fieldList = [
+      "header",
+      "id",
+      "ancestor*",
+      "caption_eng",
+    ].join(",");
+    var url = plugin.settings.termIndex + "/select?";
+    if(loadOnlyDirectAncestors) {
+      if(plugin.settings.featureId){
+        url += "&q=" + "id:" + plugin.settings.featureId;
+      } else {
+        url += "&q=*";
+        url += "&df=header";
+        url += "&fq=level_"+plugin.settings.perspective+"_i:[1 TO 1]";
+      }
+    } else { //TODO: In feature implementations we should define what to do to extract all ancestors not just direct, currently it always just gets the direct ancestors.
+    }
+    url += "&fl=" + fieldList +
+      "&fq=tree:" + plugin.settings.tree +
+      "&indent=true" +
+      "&wt=json" +
+      "&json.wrf=?" +
+      "&rows=" + SOLR_ROW_LIMIT +
+      "&limit=" + SOLR_ROW_LIMIT +
+      "&sort=header_ssort+asc";
+    $.ajax({
+      url: url,
+      dataType: 'jsonp',
+      jsonp: 'json.wrf'
+    }).done(function(data){
+      const response = data.response;
+      const buildTree = function buildTree(doc,children) {
+        var ancestorsKey  = "ancestor_ids_" + plugin.settings.perspective;
+        var ancestorsNameKey  = "ancestors_" + plugin.settings.perspective;
+        if( doc[ancestorsKey] === undefined ) {
+          ancestorsKey  = "ancestor_ids_closest_" + plugin.settings.perspective;
+          ancestorsNameKey  = "ancestors_closest_" + plugin.settings.perspective;
+        }
+        ;;;console.log(doc[ancestorsKey]);
+        const result = doc[ancestorsKey] === undefined ? [] : doc[ancestorsKey].reduceRight(function(acc,val,index){
+          const node = {
+            title: "<strong>" + doc[ancestorsNameKey][index] + "</strong>",
+            key: plugin.settings.domain + "-" + val,
+            expanded: true,
+            href: plugin.settings.featuresPath.replace("%%ID%%",val),
+            lazy: true,
+            displayPath: doc[ancestorsNameKey].join("/"),
+            //[].concat to handle the instance when the children are sent as an argument
+            children: acc === undefined ? null : [].concat(acc)
+          };
+          if( Number(val) === Number(plugin.settings.featureId)) {
+            node.active = true;
+            node.backColor= '#eaeaea';
+          }
+          return node;
+        }, children);
+        return [result];
+      }
+      if(response.numFound > 0){
+        var doc = response.docs[0];
+        if (loadDescendants && plugin.settings.featureId) {
+          const featureChildren = plugin.getDescendantTree(plugin.settings.featureId);
+          featureChildren.then(function(children){ dfd.resolve(buildTree(doc, children)) });
+        } else {
+          if(response.numFound > 1){
+            var ancestorTree = [];
+            for(var i = 0; i < response.numFound; i++){
+              doc = response.docs[i];
+              ancestorTree = ancestorTree.concat(buildTree(doc));
+            }
+            dfd.resolve(ancestorTree);
+          } else {
+            dfd.resolve(buildTree(doc));
+          }
+        }
+      } else {
+        dfd.resolve([]);
+      }
+    });
+    return dfd.promise();
+  }
   Plugin.getAncestorTree = function getAncestorTree(options){
     const plugin = this;
     var loadDescendants = options["descendants"] ? !! options["descendants"] : false;
