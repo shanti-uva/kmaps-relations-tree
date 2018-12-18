@@ -32,10 +32,11 @@ $(document).ready(function(){
     perspective: "PERSPECTIVE.CODE",
     tree: "TREE_ID_IN_SOLR", //[places,subjects,sources, etc.]
     termIndex: "HTTPS://SERVER/PATH/TO/TERM_INDEX",
-    seedTree: {
-      descendants: true, //Show descendants
-      directAncestors: false, //Show only direct A
-    },
+    descendants: false, //Show descendants
+    directAncestors: true, //Show only direct ancestors
+    descendantsFullDetail: true, //Show full details on child nodes
+    sortBy: 'header_ssort+ASC', //Set a field to use for sort
+    initialScrollToActive: false, //After init there will be a 200ms delay and then scroll to active
     displayPopup: false,
     mandalaURL: "https://mandala.shanti.virginia.edu/%%APP%%/%%ID%%/%%REL%%/nojs"
   });
