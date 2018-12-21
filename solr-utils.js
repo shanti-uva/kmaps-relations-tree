@@ -111,17 +111,20 @@
     var fieldList = [
       "header",
       "id",
-      "ancestor*",
-      "caption_eng",
+      "uid",
       "related_"+ plugin.settings.domain +"_feature_type_s",
-      "related_"+ plugin.settings.domain +"_relation_label_s"
+      "related_"+ plugin.settings.domain +"_relation_label_s",
+      "related_kmaps_node_type",
+      "related_"+plugin.settings.domain+"_feature_types_t",
+      "related_"+plugin.settings.domain+"_id_s",
+      "related_"+plugin.settings.domain+"_header_s",
     ].join(",");
     if(plugin.settings.domain == "places"){
       fieldList += ",related_subjects_t";
     }
     var getSummaryElementsUrl = plugin.settings.termIndex + "/select?" +
       "&q=" + "{!child of=block_type:parent}id:" + plugin.settings.featureId +
-      "&fl=related*,related_"+plugin.settings.domain+"_feature_types_t,uid,related_"+plugin.settings.domain+"_id_s,related_"+plugin.settings.domain+"_header_s" +","+ fieldList +
+      "&fl="+ fieldList +
       "&rows=" + SOLR_ROW_LIMIT +
       "&indent=true" +
       "&wt=json" +
@@ -202,8 +205,6 @@
     var fieldList = [
       "header",
       "id",
-      "ancestor*",
-      "caption_eng",
       "related_"+ plugin.settings.domain +"_feature_type_s",
       "related_"+ plugin.settings.domain +"_relation_label_s"
     ].join(",");
@@ -212,7 +213,7 @@
     }
     var getSummaryElementsUrl = plugin.settings.termIndex + "/select?" +
       "&q=" + "{!child of=block_type:parent}id:" + plugin.settings.featureId +
-      "&fl=related*,related_"+plugin.settings.domain+"_feature_types_t,uid,related_"+plugin.settings.domain+"_id_s,related_"+plugin.settings.domain+"_header_s" +","+ fieldList +
+      "&fl=related_"+plugin.settings.domain+"_feature_types_t,uid,related_"+plugin.settings.domain+"_id_s,related_"+plugin.settings.domain+"_header_s" +","+ fieldList +
       "&rows=" + SOLR_ROW_LIMIT +
       "&indent=true" +
       "&wt=json" +
@@ -254,7 +255,13 @@
     const dfd = $.Deferred();
     var nodeinfo = [];
     nodeinfo['always']='present';
-    var url = plugin.settings.termIndex + '/select?q=id:' + currentFeatureId + '&fl=header,ancestor*&wt=json&json.wrf=?';
+    const fieldList = [
+      "ancestors_" + plugin.settings.perspective,
+      "ancestor_ids_" + plugin.settings.perspective,
+      "ancestor_ids_closest_" + plugin.settings.perspective,
+      "ancestors_closest_" + plugin.settings.perspective,
+    ].join(',');
+    var url = plugin.settings.termIndex + '/select?q=id:' + currentFeatureId + '&fl=header,'+ fieldList +'*&wt=json&json.wrf=?';
     $.ajax({
       url: url,
       dataType: 'jsonp',
@@ -265,7 +272,6 @@
       },
       beforesend: function () {
       },
-
       success: function (data) {
         if (data.response.docs.length > 0) {
           var doc = data.response.docs[0];
@@ -292,7 +298,7 @@
     const dfd = $.Deferred();
     // Update counts from asset index
     var nodeCaptionsUrl =
-      plugin.settings.termIndex + '/select?q=id:' + key + '&fl=caption*&wt=json&json.wrf=?';
+      plugin.settings.termIndex + '/select?q=id:' + key + '&fl=caption_*&wt=json&json.wrf=?';
     $.ajax({
       type: "GET",
       url: nodeCaptionsUrl,
@@ -412,7 +418,7 @@
     const dfd = $.Deferred();
     var url = plugin.settings.termIndex + "/select?" +
       "&q=" + "id:" + plugin.settings.domain + "-" + plugin.settings.featureId +
-      "&fl=level*,ancestor*" + plugin.settings.perspective + "*" +
+      "&fl=level_"+plugin.settings.perspective+"_i,ancestor_id_" + plugin.settings.perspective + "_path" +
       "&fq=tree:" + plugin.settings.tree +
       "&indent=true" +
       "&wt=json" +
@@ -446,8 +452,8 @@
     const fieldList = [
       "header",
       "id",
-      "ancestor*"+plugin.settings.perspective+"*",
-      "level*"+plugin.settings.perspective+"*"
+      "ancestor_id_"+plugin.settings.perspective+"_path",
+      "level_"+plugin.settings.perspective+"_i"
     ].join(",");
     var url = plugin.settings.termIndex + "/select?";
     if(!loadOnlyDirectAncestors) {
@@ -555,8 +561,12 @@
     var fieldList = [
       "header",
       "id",
-      "ancestor*"+plugin.settings.perspective+"*",
-      "level*"+plugin.settings.perspective+"*",
+      "ancestor_id_"+plugin.settings.perspective+"_path",
+      "ancestor_ids_"+plugin.settings.perspective,
+      "ancestors_"+plugin.settings.perspective,
+      "ancestor_id_closest_"+plugin.settings.perspective+"_path",
+      "ancestors_closest_"+plugin.settings.perspective,
+      "level_"+plugin.settings.perspective+"_i",
       "related_"+plugin.settings.domain+"_feature_type_s",
       "related_"+plugin.settings.domain+"_relation_label_s",
     ].join(",");
@@ -635,8 +645,12 @@
     const fieldList = [
       "header",
       "id",
-      "ancestor*",
-      "caption_eng",
+      "ancestor_id_"+plugin.settings.perspective+"_path",
+      "ancestor_ids_"+plugin.settings.perspective,
+      "ancestors_"+plugin.settings.perspective,
+      "ancestor_id_closest_"+plugin.settings.perspective+"_path",
+      "ancestor_ids_closest_"+plugin.settings.perspective,
+      "level_"+plugin.settings.perspective+"_i",
     ].join(",");
     var url = plugin.settings.termIndex + "/select?";
     if(loadOnlyDirectAncestors) {
@@ -720,7 +734,10 @@
     var fieldList = [
       "header",
       "id",
-      "ancestor*",
+      "ancestor_id_"+plugin.settings.perspective+"_path",
+      "ancestors_"+plugin.settings.perspective,
+      "ancestor_id_closest_"+plugin.settings.perspective+"_path",
+      "ancestor_ids_closest_"+plugin.settings.perspective,
       "caption_eng",
       "related_"+plugin.settings.domain+"_feature_type_s",
       "related_"+plugin.settings.domain+"_relation_label_s"
